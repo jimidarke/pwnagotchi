@@ -1,0 +1,12 @@
+# DarkeHash Plugin Configuration for Pwnagotchi
+# Add this section to your /etc/pwnagotchi/config.toml file
+
+[main.plugins.darkehash]
+enabled = true
+server_url = "http://155.138.136.208:8800"
+username = "darkepwn"
+password = "dh2akf5ksdai44ad0y"
+upload_logs = true
+log_lines = 200
+max_retries = 3
+show_status = false

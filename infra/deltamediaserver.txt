@@ -1,0 +1,206 @@
+media@mediaserver:~$ sudo ./info_collect.sh
+=========================================
+SYSTEM INFORMATION COLLECTOR
+Hostname: mediaserver
+Collected: 2025-11-08 13:13:35
+=========================================
+
+=== CPU INFORMATION ===
+Model:
+Model name:                           Intel(R) Core(TM) i5-2500 CPU @ 3.30GHz
+BIOS Model name:                      Intel(R) Core(TM) i5-2500 CPU @ 3.30GHz         To Be Filled By O.E.M. CPU @ 3.4GHz
+
+Architecture:
+Architecture:                         x86_64
+
+CPU Cores:
+CPU(s):                               4
+Thread(s) per core:                   1
+Core(s) per socket:                   4
+Socket(s):                            1
+
+CPU Flags (important for hashcat):
+✓ AES-NI: YES (hardware AES acceleration - 2-3x boost for WPA2)
+✓ AVX: YES (basic vector extensions)
+✓ SSE: YES
+
+=== GPU INFORMATION ===
+Hardware Detection (lspci):
+01:00.0 VGA compatible controller: NVIDIA Corporation GM206 [GeForce GTX 960] (rev a1)
+
+NVIDIA GPU Status:
+✓ nvidia-smi: FOUND
+NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.
+
+
+CUDA Version:
+
+✓ NVIDIA drivers: INSTALLED AND WORKING
+
+Detected GPU: NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.
+Estimated WPA2 speed: Unknown model - run benchmark
+
+AMD GPU: Not detected
+
+
+=== MEMORY INFORMATION ===
+               total        used        free      shared  buff/cache   available
+Mem:            31Gi       4.8Gi       8.6Gi        49Mi        18Gi        26Gi
+Swap:          8.0Gi          0B       8.0Gi
+
+Detailed RAM:
+        Error Correction Type: None
+        Size: 8 GB
+        Type: DDR3
+        Speed: 1600 MT/s
+        Manufacturer: Corsair
+        Size: 8 GB
+        Type: DDR3
+        Speed: 1600 MT/s
+        Manufacturer: Corsair
+        Size: 8 GB
+        Type: DDR3
+        Speed: 1600 MT/s
+        Manufacturer: Corsair
+        Size: 8 GB
+        Type: DDR3
+        Speed: 1600 MT/s
+        Manufacturer: Corsair
+
+✓ RAM Status: 31 GB (Excellent for hashcat)
+
+=== STORAGE INFORMATION ===
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda2       916G   61G  809G   7% /
+
+NAME     SIZE TYPE MOUNTPOINT                          FSTYPE
+loop0      4K loop /snap/bare/5                        squashfs
+loop1   17.5M loop /snap/snap-store/1300               squashfs
+loop2  184.1M loop                                     squashfs
+loop3   73.9M loop /snap/core22/2133                   squashfs
+loop4   73.9M loop                                     squashfs
+loop5  185.2M loop /snap/chromium/3265                 squashfs
+loop7   50.8M loop /snap/snapd/25202                   squashfs
+loop8   73.9M loop /snap/core22/2139                   squashfs
+loop9   11.1M loop /snap/firmware-updater/167          squashfs
+loop10   516M loop /snap/gnome-42-2204/202             squashfs
+loop11  91.7M loop /snap/gtk-common-themes/1535        squashfs
+loop12  10.8M loop /snap/snap-store/1270               squashfs
+loop13  18.5M loop /snap/firmware-updater/210          squashfs
+loop14  50.9M loop /snap/snapd/25577                   squashfs
+loop15  49.3M loop                                     squashfs
+loop16   568K loop /snap/snapd-desktop-integration/253 squashfs
+loop17   576K loop /snap/snapd-desktop-integration/315 squashfs
+loop18 516.2M loop /snap/gnome-42-2204/226             squashfs
+loop19   186M loop /snap/chromium/3251                 squashfs
+loop20  47.6M loop /snap/cups/1112                     squashfs
+loop21 249.2M loop /snap/firefox/7084                  squashfs
+loop22  48.8M loop /snap/cups/1116                     squashfs
+loop23 249.1M loop /snap/firefox/7177                  squashfs
+sda    931.5G disk
+├─sda1     1M part
+└─sda2 931.5G part /                                   ext4
+sr0     1024M rom
+
+Available space on /: ~808GB
+✓ Storage: Sufficient for large wordlists
+
+=== OPERATING SYSTEM ===
+PRETTY_NAME="Ubuntu 24.04.2 LTS"
+VERSION_ID="24.04"
+Kernel: 6.14.0-27-generic
+
+=== NETWORK INFORMATION ===
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    inet 127.0.0.1/8 scope host lo
+2: enp6s1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    inet 10.0.1.170/22 brd 10.0.3.255 scope global dynamic noprefixroute enp6s1
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+4: br-6d4710f01234: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    inet 172.18.0.1/16 brd 172.18.255.255 scope global br-6d4710f01234
+
+=== POWER SUPPLY ASSESSMENT ===
+System Type: Desktop/Server
+Note: Check PSU wattage label inside case before GPU upgrade
+
+PSU Requirements for Common GPUs:
+  - GTX 1660 / RTX 3060:     550W+
+  - RTX 4060 / 4060 Ti:      550W+
+  - RTX 4070:                650W+
+  - RTX 4080:                750W+
+  - RTX 4090:                850W+
+
+=== HASHCAT INSTALLATION STATUS ===
+✓ Hashcat: INSTALLED
+Version: v6.2.6
+
+Available devices:
+clGetPlatformIDs(): CL_PLATFORM_NOT_FOUND_KHR
+
+ATTENTION! No OpenCL, HIP or CUDA compatible platform found.
+
+To benchmark WPA2 cracking speed:
+  hashcat -b -m 22000
+
+✓ hcxtools: INSTALLED
+
+=== CUDA TOOLKIT STATUS ===
+✓ CUDA Toolkit: INSTALLED
+Version: Cuda compilation tools, release 12.0, V12.0.140
+
+=== CURRENT UTILIZATION ===
+Load average:
+ 13:13:35 up 87 days, 21:15,  3 users,  load average: 1.00, 0.93, 0.72
+
+Top CPU processes:
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+kioskus+    3905  6.3  9.4 34275616 3114320 ?    Sl   Aug12 8063:55 /snap/chromium/3203/usr/lib/chromium-browser/chrome --password-store=basic --gtk-version=3 --disable-features=TFLiteLanguageDetectionEnabled --noerrdialogs --kiosk --disable-infobars --disable-session-crashed-bubble http://localhost/zm/?view=montagereview
+root       75080  5.4  0.0   9940  3676 pts/3    S+   13:13   0:00 /bin/bash ./info_collect.sh
+root     4001149  0.5  0.0 532396 11448 pts/2    Sl+  Sep15 426:28 /usr/local/bin/mjpg_streamer -i input_uvc.so -d /dev/video0 -r 1280x720 -f 15 -o output_http.so -p 8090 -w /usr/local/www
+root       71805  0.3  0.0      0     0 ?        I<   12:31   0:08 [kworker/u17:2-uvcvideo]
+kioskus+    4102  0.3  0.3 33939556 110452 ?     Sl   Aug12 386:43 /snap/chromium/3203/usr/lib/chromium-browser/chrome --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --crashpad-handler-pid=4017 --enable-crash-reporter=,snap --noerrdialogs --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,16434181208230874504,18181729004445394425,262144 --disable-features=EyeDropper,TFLiteLanguageDetectionEnabled --variations-seed-version
+
+GPU Utilization:
+NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.
+
+
+=========================================
+SYSTEM READINESS ASSESSMENT
+=========================================
+
+✓ GPU: Ready (NVIDIA with working drivers)
+✓ Hashcat: Installed
+✓ hcxtools: Installed
+✓ RAM: Sufficient (31GB)
+✓ Storage: Sufficient (808GB free)
+
+Readiness Score: 5/5
+
+✓ System is READY for hashcat cracking!
+
+Next steps:
+1. Benchmark performance: hashcat -b -m 22000
+2. Set up cracking infrastructure (see SETUP_GUIDE.md)
+3. Download wordlists to start cracking
+
+=========================================
+QUICK SETUP COMMANDS
+=========================================
+
+# Step 4: Verify installation
+hashcat --version
+hashcat -I
+
+# Step 5: Benchmark WPA2 cracking
+hashcat -b -m 22000
+
+=========================================
+REPORT SAVED TO: mediaserver.txt
+=========================================
+
+You can now:
+1. Review this file: cat mediaserver.txt
+2. Share for hardware recommendations
+3. Compare with other systems
+4. Track changes over time

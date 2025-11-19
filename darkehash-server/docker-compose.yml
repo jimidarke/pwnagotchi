@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  darkehash-server:
+    build: .
+    container_name: darkehash-server
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8800}:5000"
+    environment:
+      - AUTH_USERNAME=${AUTH_USERNAME}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - AUTH_PASSWORD_HASH=${AUTH_PASSWORD_HASH}
+      - DB_PATH=/app/data/darkehash.db
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-10485760}
+      - SAVE_LOGS_TO_FILE=${SAVE_LOGS_TO_FILE:-true}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    networks:
+      - darkehash-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  darkehash-net:
+    driver: bridge
