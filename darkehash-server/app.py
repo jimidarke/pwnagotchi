@@ -117,6 +117,12 @@ def require_auth(f):
     return decorated_function
 
 
+# Initialize database and directories on module load
+init_db()
+os.makedirs(os.path.join(UPLOAD_DIR, 'handshakes'), exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_DIR, 'logs'), exist_ok=True)
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint (no auth required)"""
@@ -345,14 +351,7 @@ def request_entity_too_large(error):
 
 
 if __name__ == '__main__':
-    # Initialize database
-    init_db()
-
-    # Create upload directories
-    os.makedirs(os.path.join(UPLOAD_DIR, 'handshakes'), exist_ok=True)
-    os.makedirs(os.path.join(UPLOAD_DIR, 'logs'), exist_ok=True)
-
-    # Run Flask app
+    # Run Flask app (database already initialized on module load)
     app.run(
         host='0.0.0.0',
         port=int(os.environ.get('PORT', 5000)),

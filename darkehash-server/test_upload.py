@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-SERVER_URL = "http://localhost:8800"
+SERVER_URL = "http://155.138.136.208:8800"
 USERNAME = "darkepwn"
 PASSWORD = "dh2akf5ksdai44ad0y"
 
