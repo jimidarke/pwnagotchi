@@ -2,7 +2,7 @@ import os
 import logging
 import sqlite3
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Lock
 from pwnagotchi.utils import remove_whitelisted
 from pwnagotchi import plugins
@@ -28,6 +28,7 @@ class DarkeHash(plugins.Plugin):
         self.options = dict()
         self.handshake_dir = '/home/pi/handshakes'
         self.log_path = '/var/log/pwnagotchi.log'
+        self.bootup_logs_sent = False
         self._init_db()
 
     def _init_db(self):
@@ -50,10 +51,46 @@ class DarkeHash(plugins.Plugin):
             db_conn.execute('''
                 CREATE TABLE IF NOT EXISTS status_uploads (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    uploaded_at TIMESTAMP
+                    uploaded_at TIMESTAMP,
+                    upload_type TEXT DEFAULT 'regular'
                 )
             ''')
         db_conn.close()
+
+    def _check_bootup_status(self):
+        """Check if bootup logs have been sent since last reboot"""
+        try:
+            # Get system boot time
+            with open('/proc/uptime', 'r') as f:
+                uptime_seconds = float(f.readline().split()[0])
+
+            boot_time = datetime.now() - timedelta(seconds=uptime_seconds)
+
+            # Check if we've sent bootup logs since boot
+            db_conn = sqlite3.connect('/home/pi/.darkehash_db')
+            cursor = db_conn.cursor()
+            cursor.execute('''
+                SELECT uploaded_at FROM status_uploads
+                WHERE upload_type = 'bootup'
+                ORDER BY uploaded_at DESC LIMIT 1
+            ''')
+            result = cursor.fetchone()
+            cursor.close()
+            db_conn.close()
+
+            if result:
+                last_bootup = datetime.strptime(result[0], '%Y-%m-%d %H:%M:%S.%f')
+                if last_bootup > boot_time:
+                    self.bootup_logs_sent = True
+                    logging.debug("DARKEHASH: Bootup logs already sent this session")
+                    return
+
+            logging.debug("DARKEHASH: Bootup logs need to be sent")
+            self.bootup_logs_sent = False
+
+        except Exception as e:
+            logging.error(f"DARKEHASH: Error checking bootup status: {e}")
+            self.bootup_logs_sent = False
 
     def on_loaded(self):
         """Gets called when the plugin gets loaded"""
@@ -74,6 +111,9 @@ class DarkeHash(plugins.Plugin):
         self.upload_logs = self.options.get('upload_logs', True)
         self.log_lines = int(self.options.get('log_lines', 200))
         self.max_retries = int(self.options.get('max_retries', 3))
+
+        # Check if bootup logs have been sent in this session
+        self._check_bootup_status()
 
         self.ready = True
         logging.info("DARKEHASH: Plugin loaded and ready")
@@ -115,16 +155,25 @@ class DarkeHash(plugins.Plugin):
         with self.lock:
             display = agent.view()
 
+            # Send bootup logs on first internet connection
+            if not self.bootup_logs_sent and self.upload_logs:
+                try:
+                    logging.info("DARKEHASH: Sending bootup logs...")
+                    self._upload_status(agent, upload_type='bootup')
+                    self.bootup_logs_sent = True
+                except Exception:
+                    logging.exception("DARKEHASH: Exception during bootup log upload")
+
             # Upload pending handshakes
             try:
                 self._upload_handshakes(display)
             except Exception:
                 logging.exception("DARKEHASH: Exception during handshake upload")
 
-            # Upload status and logs
+            # Upload regular status and logs
             try:
                 if self.upload_logs:
-                    self._upload_status(agent)
+                    self._upload_status(agent, upload_type='regular')
             except Exception:
                 logging.exception("DARKEHASH: Exception during status upload")
 
@@ -225,7 +274,7 @@ class DarkeHash(plugins.Plugin):
 
             return response.json()
 
-    def _upload_status(self, agent):
+    def _upload_status(self, agent, upload_type='regular'):
         """Upload status information and recent logs"""
         config = agent.config()
 
@@ -244,6 +293,7 @@ class DarkeHash(plugins.Plugin):
         status_info = {
             'device_name': config['main']['name'],
             'timestamp': datetime.now().isoformat(),
+            'upload_type': upload_type,
             'log_data': log_data,
             'system_info': {
                 'uptime': self._get_uptime(),
@@ -278,12 +328,15 @@ class DarkeHash(plugins.Plugin):
             db_conn = sqlite3.connect('/home/pi/.darkehash_db')
             with db_conn:
                 db_conn.execute(
-                    'INSERT INTO status_uploads (uploaded_at) VALUES (?)',
-                    (datetime.now(),)
+                    'INSERT INTO status_uploads (uploaded_at, upload_type) VALUES (?, ?)',
+                    (datetime.now(), upload_type)
                 )
             db_conn.close()
 
-            logging.info("DARKEHASH: Status and logs uploaded successfully")
+            if upload_type == 'bootup':
+                logging.info("DARKEHASH: Bootup logs uploaded successfully")
+            else:
+                logging.info("DARKEHASH: Status and logs uploaded successfully")
 
         except Exception as e:
             logging.error(f"DARKEHASH: Error uploading status: {e}")

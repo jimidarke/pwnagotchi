@@ -5,6 +5,7 @@ The DarkeHash plugin automatically uploads captured handshakes and device status
 ## Features
 
 - **Automatic Upload**: Uploads captured handshakes when internet is available
+- **Bootup Logs**: Automatically sends startup/bootup logs on first internet connection
 - **Status Reporting**: Sends device logs and statistics to server
 - **Retry Logic**: Automatically retries failed uploads (configurable)
 - **Whitelist Support**: Respects Pwnagotchi whitelist configuration
@@ -62,28 +63,42 @@ show_status = false         # Show upload stats on display (optional)
 
 ## How It Works
 
-### 1. Handshake Capture
+### 1. Plugin Initialization
+When the plugin loads, it:
+- Validates required configuration (server_url, username, password)
+- Checks if bootup logs have been sent since last reboot
+- Prepares to send startup logs on first internet connection
+
+### 2. Bootup Logs (First Internet Connection)
+On the **first** internet connection after bootup:
+- Automatically uploads recent log entries (includes startup logs)
+- Marks upload as "bootup" type in database
+- Captures initial system state and statistics
+- Only happens once per boot session
+
+### 3. Handshake Capture
 When a handshake is captured, the `on_handshake()` hook is triggered:
 - Checks if network is whitelisted (skips if whitelisted)
 - Adds handshake to local SQLite database with `PENDING` status
 - Waits for internet connectivity
 
-### 2. Internet Detection
+### 4. Internet Detection & Uploads
 When internet becomes available, the `on_internet_available()` hook is triggered:
-- Queries database for pending handshakes
+- **First**: Sends bootup logs if not already sent this session
+- **Second**: Queries database for pending handshakes
 - Uploads each handshake with metadata (SSID, BSSID, filename)
 - Updates database status to `UPLOADED` on success
 - Increments retry counter on failure
 - Marks as `FAILED` after max retries exceeded
 
-### 3. Status Reporting
-If `upload_logs` is enabled:
+### 5. Regular Status Reporting
+If `upload_logs` is enabled (on every internet connection):
 - Reads recent log entries from Pwnagotchi log file
 - Collects system information (uptime, handshake counts)
 - Uploads to server as JSON payload
 - Logs are also saved as individual files on server (if configured)
 
-### 4. UI Display (Optional)
+### 6. UI Display (Optional)
 If `show_status` is enabled:
 - Shows upload statistics on display: `DH: 45↑ 2⏳`
 - Format: `{uploaded_count}↑ {pending_count}⏳`
@@ -104,6 +119,7 @@ The plugin maintains a local SQLite database at `/home/pi/.darkehash_db` with:
 **status_uploads**
 - `id` (INTEGER PRIMARY KEY): Upload record ID
 - `uploaded_at` (TIMESTAMP): Status upload timestamp
+- `upload_type` (TEXT): Type of upload ('bootup' or 'regular')
 
 ## Logs
 
@@ -115,6 +131,9 @@ tail -f /var/log/pwnagotchi.log | grep DARKEHASH
 
 # Example output
 [INFO] DARKEHASH: Plugin loaded and ready
+[DEBUG] DARKEHASH: Bootup logs need to be sent
+[INFO] DARKEHASH: Sending bootup logs...
+[INFO] DARKEHASH: Bootup logs uploaded successfully
 [INFO] DARKEHASH: Queued handshake /home/pi/handshakes/Network_AA-BB-CC.pcap for upload
 [INFO] DARKEHASH: Found 3 handshake(s) to upload
 [INFO] DARKEHASH: Uploading /home/pi/handshakes/Network_AA-BB-CC.pcap...
