@@ -9,6 +9,7 @@ from pwnagotchi import plugins
 from pwnagotchi.ui.components import LabeledValue
 from pwnagotchi.ui.view import BLACK
 import pwnagotchi.ui.fonts as fonts
+import pwnagotchi
 
 
 class DarkeHash(plugins.Plugin):
@@ -289,6 +290,12 @@ class DarkeHash(plugins.Plugin):
             logging.error(f"DARKEHASH: Error reading log file: {e}")
             log_data = f"Error reading logs: {e}"
 
+        # Get version safely
+        try:
+            version = pwnagotchi.__version__
+        except Exception:
+            version = 'unknown'
+
         # Gather status information
         status_info = {
             'device_name': config['main']['name'],
@@ -297,7 +304,7 @@ class DarkeHash(plugins.Plugin):
             'log_data': log_data,
             'system_info': {
                 'uptime': self._get_uptime(),
-                'version': agent.version,
+                'version': version,
             }
         }
 
